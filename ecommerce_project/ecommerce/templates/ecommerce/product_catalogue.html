@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalogue</title>
+</head>
+<body>
+
+    <h1>Available Products</h1>
+
+    {% if products %}
+        {% for product in products %}
+
+            <h2>{{ product.name }}</h2>
+
+            <p>{{ product.description }}</p>
+            <p>Price: R{{ product.price }}</p>
+            <p>Available quantity: {{ product.quantity_available }}</p>
+            <p>Store: {{ product.store.name }}</p>
+            <p>Vendor: {{ product.store.vendor.username }}</p>
+            <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                {% csrf_token %}
+                <button type="submit">Add to Cart</button>
+                        </form>
+
+            <h3>Customer Reviews</h3>
+
+            {% for review in product.reviews.all %}
+                <p>Rating: {{ review.rating }}/5</p>
+                <p>{{ review.comment }}</p>
+                <p>By: {{ review.buyer.username }}</p>
+
+                {% if review.is_verified %}
+                    <p>Verified Purchase</p>
+                {% else %}
+                    <p>Unverified Review</p>
+                {% endif %}
+                <hr>
+            {% empty %}
+                <p>No reviews yet.</p>
+            {% endfor %}
+
+            <h3>Write a Review</h3>
+
+            <form method="POST" action="{% url 'submit_review' product.id %}">
+                {% csrf_token %}
+
+                <label for="rating-{{ product.id }}">Rating:</label>
+                <select name="rating" id="rating-{{ product.id }}" required>
+                    <option value="">Choose a rating</option>
+                    <option value="1">1 Star</option>
+                    <option value="2">2 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="5">5 Stars</option>
+                </select>
+
+                <br><br>
+
+                <label for="comment-{{ product.id }}">Comment:</label>
+                <textarea name="comment" id="comment-{{ product.id }}" required></textarea>
+
+                <br><br>
+
+                <button type="submit">Submit Review</button>
+            </form>
+
+            <hr>
+
+        {% endfor %}
+        <a href="{% url 'cart_view' %}">View Shopping Cart</a>
+    {% else %}
+        <p>No products are currently available.</p>
+    {% endif %}
+
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+
+</body>
+</html>
